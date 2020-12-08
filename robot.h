@@ -8,17 +8,22 @@
 #define BUBBLE_MACHINE_H
 
 // Configure your default pin numbers
-const int LED_PIN = 5;
+const int LED_PIN          14;
+const int PUMP_PIN         16;
+const int NUM_LEDS          8;
+const int LED_LOOP_DELAY 1000;
+const int LED_OFF           0;
+const int LED_ON            1;
 
-// The amount of time to activate the robot
-const int ACTIVATE_TIME_DEFAULT = 10000; // time in ms
+// The default amount to activate the robot
+const int ACTIVATE_DEFAULT = 20000;
 
 //------- Update the following! ------
-const String MQTT_ID = "base-robot-001"; // ID for this client when connecting to MQTT
+const String MQTT_ID = "drink-robot-001"; // ID for this client when connecting to MQTT
 const String MQTT_BROKER = "192.168.1.22"; // Hostname or IP of your MQTT server
 const int MQTT_PORT = 1883; // Set the port used by your MQTT server
 const int MQTT_RECONNECT_DELAY = 5000; // Time in ms to wait between reconnect attempts
 const int MQTT_TOPIC_COUNT = 1; // This should match the number of topics you wish to subscribe to
-const String MQTT_TOPIC[MQTT_TOPIC_COUNT] = {"base-robot"}; // The topic name you wish to listen for
+const String MQTT_TOPIC[MQTT_TOPIC_COUNT] = {"drinky"}; // The topic name you wish to listen for
 
 #endif

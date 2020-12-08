@@ -9,10 +9,15 @@
 #include "robot_wifi.h"
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#define FASTLED_ESP8266_RAW_PIN_ORDER
+#include <FastLED.h>
 
 //------------------------------
 WiFiClient wiFiClient;
 PubSubClient client(wiFiClient); // MQTT client
+
+// LED
+CRGB leds[NUM_LEDS];
 
 // Put your setup code here, to run once:
 void setup() {
@@ -22,10 +27,10 @@ void setup() {
   setupPins();
 
   setupWIFI();
- 
-  setupWIFI();
 
   setupMQTT();
+
+  setupDrinkLEDs();
 }
 
 void setupSerial() {
@@ -35,6 +40,7 @@ void setupSerial() {
 
 void setupPins() {
     pinMode(LED_PIN, OUTPUT);
+    pinMode(PUMP_PIN, OUTPUT);
 }
 
 void setupWIFI() {
@@ -60,6 +66,12 @@ void setupWIFI() {
 void setupMQTT() {
   client.setServer(MQTT_BROKER.c_str(), MQTT_PORT);
   client.setCallback(callback);// Initialize the callback routine
+}
+
+void setupDrinkLEDs() {
+  FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.setBrightness(50);
+  FastLED.clear(true);
 }
 
 void loop() {
@@ -110,31 +122,67 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.println("] ");
   Serial.println(response);
 
-  // We need to set the default time for the older message format
-  long activateTime = ACTIVATE_TIME_DEFAULT;
+  // We need to set the default value for the older message format
+  long activateValue = ACTIVATE_DEFAULT;
 
   // This is quick and dirty with minimal input checking
   // We are the only ones sending this data so we shouldn't have to worry
   if (response.indexOf(",") != -1) {
     // It looks like we are receiving the new format so try and parse the activation time
     int delimiterLocation = response.indexOf(",");
-    activateTime = response.substring(delimiterLocation + 1, response.length()).toFloat();
+    activateValue = response.substring(delimiterLocation + 1, response.length()).toFloat();
   }
 
   // We need to turn the robot on
-  activateRobot(activateTime);
+  activateRobot(activateValue);
 }
 
-void activateRobot(long activateTime) {
+void activateRobot(const long activateValue) {
 
   Serial.print("activateRobot called: ");
-  Serial.println(activateTime);
+  Serial.println(activateValue);
 
-
-  // TODO: Add code for new robot here
-
+  // Tell the drink bot to start filling the glass
+  drinkBotFill(activateValue);
 
   Serial.println("activateRobot completed!");
   Serial.println();
+}
 
+void drinkBotFill(const int activateValue) {
+  // Turn on the LEDs
+  ledControl(LED_ON);
+
+  // Turn on the pump
+  digitalWrite(PUMP_PIN, HIGH);
+  delay(activateValue); // This is the amount of time to turn the pump on for
+  // Turn off the pump
+  digitalWrite(PUMP_PIN, LOW);
+  delay(25);
+  // Now turn off the LEDs
+  ledControl(LED_OFF);
+}
+
+void ledControl(const int state) {
+  // LED's Off
+  if (state == LED_OFF) {
+    // Loop over the LEDs and turn them off aka black
+    for(int i = NUM_LEDS;i >= 0;i--) {
+      leds[i] = CRGB::Black;
+      FastLED.show();
+      Serial.print(i);
+      Serial.println("Black");
+      delay(LED_LOOP_DELAY);
+    }
+  }
+  else if (state == LED_ON) {
+    // Loop over the LEDs and turn the on with blue color
+    for(int i = 0;i <= NUM_LEDS;i++) {
+      leds[i] = CRGB::Blue;
+      FastLED.show();
+      Serial.print(i);
+      Serial.println("Blue");
+      delay(LED_LOOP_DELAY);
+    }
+  }
 }
