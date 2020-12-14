@@ -4,16 +4,16 @@
   Created with code from noycebru www.twitch.tv/noycebru
  *******************************************************************/
 
-#ifndef BUBBLE_MACHINE_H
-#define BUBBLE_MACHINE_H
+#ifndef DRINK_MACHINE_H
+#define DRINK_MACHINE_H
 
 // Configure your default pin numbers
-const int LED_PIN          14;
-const int PUMP_PIN         16;
-const int NUM_LEDS          8;
-const int LED_LOOP_DELAY 1000;
-const int LED_OFF           0;
-const int LED_ON            1;
+const int LED_PIN = 14;
+const int PUMP_PIN = 16;
+const int NUM_LEDS = 8;
+const int LED_LOOP_DELAY = 1000;
+const int LED_OFF = 0;
+const int LED_ON = 1;
 
 // The default amount to activate the robot
 const int ACTIVATE_DEFAULT = 20000;
